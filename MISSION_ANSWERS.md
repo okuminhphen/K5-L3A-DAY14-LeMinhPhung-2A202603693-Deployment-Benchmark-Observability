@@ -126,7 +126,16 @@ Server: nginx
 
 ### Exercise 3.1 / 3.2: Deploy Agent Part 6 (CP6)
 
-- **Nền tảng chính:** *(Sẽ điền URL public, lệnh test 4 mã HTTP và link ảnh `screenshots/` sau khi hoàn thành Part 6 và CP6).*
+- **Nền tảng chính:** Render (Web Service Docker trỏ Root Directory `06-lab-complete` + Render Key Value Redis)
+- **Public URL:** https://k5-l3a-day14-leminhphung-2a202603693.onrender.com
+- **Screenshots:** [dashboard.png](screenshots/dashboard.png), [running.png](screenshots/running.png), [test.png](screenshots/test.png) (chi tiết test commands xem trong [DEPLOYMENT.md](DEPLOYMENT.md)).
+- **Kết quả kiểm tra thực tế trên URL public:**
+  ```text
+  GET  /health              → 200  {"status":"ok"}
+  GET  /ready               → 200  {"status":"ready"}
+  POST /ask (không API key) → 401  {"detail":"Invalid or missing API key"}
+  ```
+  *(Lệnh thứ 4 gửi `POST /ask` kèm header `X-API-Key: $AGENT_API_KEY` thực hiện xác minh ở local trước khi chụp `screenshots/test.png` để không lưu secret vào repo).*
 
 ### So sánh `railway.toml` vs `render.yaml`
 
@@ -337,3 +346,7 @@ Chạy kiểm tra đầy đủ trong `06-lab-complete/` (môi trường Linux/PO
    - **Hỏi AI:** Hướng dẫn chi tiết cách `check_production_ready.py` kiểm tra 12 tiêu chí (tĩnh, runtime, Docker), vị trí `.dockerignore` và cơ chế inject `.env` lúc chạy container, cùng triển khai các TODO trong `06-lab-complete/app/`, `Dockerfile`, `docker-compose.yml`, `.dockerignore`, `.env.example`, `railway.toml`, `render.yaml`.
    - **Nhận được:** Mã nguồn đầy đủ cho 6 module trong `06-lab-complete/app/` (FastAPI, `APIKeyHeader` 401, Redis Sorted Set sliding window rate limiter, Redis `INCRBYFLOAT` daily cost guard 402, JSON logger, `lifespan` + `SIGTERM` chaining) và cấu hình multi-stage Docker / Compose / deploy.
    - **Tự kiểm tra:** Đã chạy `check_production_ready.py` trên Windows (`42/42 checks passed`, `11/12` + `⚠️` do Windows không gửi `SIGTERM`) và chạy đầy đủ trong container Linux (`posix`) với Docker 28.0.1 + Redis, đạt **`PASS 12/12` (43/43 checks passed)**; giữ nguyên không sửa `check_production_ready.py`.
+3. **Part 3 (Cloud Deployment — Render) & Part 7 (Benchmark & Observability):**
+   - **Hỏi AI:** Hướng dẫn deploy `06-lab-complete/` lên Render (Web Service Docker + Key Value Redis), kiểm tra URL public, thêm metric `agent_question_length_chars`, tìm nguyên nhân 2 câu fail trong `eval_v2.json` để sửa `KNOWLEDGE_BASE`, cấu hình CI quality gate và phân tích trace/alert/scaling.
+   - **Nhận được:** Tạo `DEPLOYMENT.md`, bổ sung metric `agent_question_length_chars`, sửa `KNOWLEDGE_BASE` trong `develop/utils/mock_llm.py` & `production/utils/mock_llm.py`, sửa lỗi thiếu `ENV PYTHONUSERBASE=/home/agent/.local` trong `benchmark-observability/production/Dockerfile`, tạo `.github/workflows/eval.yml` và tổng hợp số liệu thực vào `BENCHMARK_REPORT.md`.
+   - **Tự kiểm tra:** Đã tự chạy toàn bộ `load_test.py` (7 kịch bản), `run_eval.py` (`eval_v1` `4.35%`, `eval_v2` `91.3%`, `eval_v2_fixed` `100.0%` không regression), `promtool test rules` (`SUCCESS`), Locust headless scale 1 vs 3 (`scale_1_stats.csv`, `scale_3_stats.csv`), và các thí nghiệm alert firing thực tế trên Prometheus/Jaeger/Grafana; đối chiếu toàn bộ số liệu khớp 100% với file JSON/CSV nộp kèm.
