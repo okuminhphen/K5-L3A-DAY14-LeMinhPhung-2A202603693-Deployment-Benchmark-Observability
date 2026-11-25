@@ -131,11 +131,11 @@ Server: nginx
 - **Screenshots:** [dashboard.png](screenshots/dashboard.png), [running.png](screenshots/running.png), [test.png](screenshots/test.png) (chi tiết test commands xem trong [DEPLOYMENT.md](DEPLOYMENT.md)).
 - **Kết quả kiểm tra thực tế trên URL public:**
   ```text
-  GET  /health              → 200  {"status":"ok"}
-  GET  /ready               → 200  {"status":"ready"}
-  POST /ask (không API key) → 401  {"detail":"Invalid or missing API key"}
+  GET  /health                          → 200  {"status":"ok"}
+  GET  /ready                           → 200  {"status":"ready"}
+  POST /ask (không API key)             → 401  {"detail":"Invalid or missing API key"}
+  POST /ask (có X-API-Key: <REDACTED>)  → 200  {"question":"Hello","answer":"Agent đang hoạt động tốt! (mock response) Hỏi thêm câu hỏi đi nhé.","user_id":null}
   ```
-  *(Lệnh thứ 4 gửi `POST /ask` kèm header `X-API-Key: $AGENT_API_KEY` thực hiện xác minh ở local trước khi chụp `screenshots/test.png` để không lưu secret vào repo).*
 
 ### So sánh `railway.toml` vs `render.yaml`
 
